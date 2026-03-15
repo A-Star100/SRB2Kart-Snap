@@ -26,7 +26,6 @@ jobs:
 
       - name: Build snap
         run: |
-          # No need for cross-compile flags; it's native!
           sudo snapcraft pack --destructive-mode
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
