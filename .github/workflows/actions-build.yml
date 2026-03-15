@@ -8,7 +8,14 @@ on:
 
 jobs:
   test-build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - architecture: amd64
+            os: ubuntu-24.04
+          - architecture: arm64
+            os: ubuntu-24.04-arm 
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -19,6 +26,7 @@ jobs:
 
       - name: Build snap
         run: |
+          # No need for cross-compile flags; it's native!
           sudo snapcraft pack --destructive-mode
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
@@ -26,5 +34,5 @@ jobs:
       - name: Upload snap
         uses: actions/upload-artifact@v6
         with:
-          name: srb2kart-build
+          name: srb2kart-${{ matrix.architecture }}
           path: "*.snap"
