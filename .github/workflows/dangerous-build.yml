@@ -60,7 +60,7 @@ jobs:
       - name: Build snap
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
-          sudo snapcraft
+          sudo snapcraft --use-lxd
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
