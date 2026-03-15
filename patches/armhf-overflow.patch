@@ -1,0 +1,11 @@
+--- a/src/z_zone.c
++++ b/src/z_zone.c
+@@ -457,7 +457,7 @@
+ #endif
+ 
+ 	size_t            size;
+-	size_t            extrabytes = (1<<alignbits) - 1;
++	size_t            extrabytes = (1<<alignbits) - (sizeof(size_t)*8 > (UINT32) alignbits);
+ 	memblock_t        *block;
+ 	void              *ptr;
+ 	size_t            user_size;
