@@ -59,7 +59,7 @@ jobs:
       - name: Build snap
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
-          sudo snapcraft --build-for=i386
+          sudo snapcraft pack
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
