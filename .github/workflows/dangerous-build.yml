@@ -57,7 +57,7 @@ jobs:
       
       - name: Build snap
         run: |
-          sudo snap install snapcraft --classic
+          sudo snap install snapcraft --classic --channel=7.x/stable
           sudo snapcraft pack --build-for=i386
 
       - name: Upload snap
