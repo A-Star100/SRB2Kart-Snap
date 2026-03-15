@@ -1,0 +1,137 @@
+name: srb2kart
+base: core24
+version: '1.6'
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
+summary: A kart racing mod based on the 3D Sonic the Hedgehog fangame Sonic Robo Blast 2
+description: |
+  Sonic Robo Blast 2 Kart (usually shortened to SRB2Kart or SRB2K) is a kart racing game with Sonic-themed characters, items and race tracks. 
+  SRB2Kart features over 100 maps for two game modes: the main Race mode and a Battle mode where players fight each other using the items available in the game.
+grade: stable
+confinement: strict
+icon: srb2kart.png
+
+apps:
+  srb2kart:
+    command: usr/games/SRB2Kart/srb2kart
+    desktop: org.srb2.SRB2Kart.desktop
+    common-id: org.srb2.SRB2Kart
+    environment:
+      HOME: $SNAP_USER_COMMON
+      SRB2WADDIR: $SNAP/usr/games/SRB2Kart
+    extensions: [gnome]
+    plugs:
+      - unity7
+      - screen-inhibit-control
+      - audio-playback
+      - network
+      - network-bind
+      - home
+      - removable-media
+      - mount-observe
+      - joystick
+      - bluez
+
+plugs:
+  shared-memory:
+    private: true
+
+parts:
+  kart-app:
+    plugin: cmake
+    source: https://github.com/STJr/Kart-Public.git
+    source-tag: v1.6
+    after: [rapidjson, discord-rpc]
+    build-packages:
+      - libsdl2-mixer-dev
+      - libsdl2-dev
+      - libupnp-dev
+      - libgme-dev
+      - libopenmpt-dev
+      - libc6-dev
+      - libpng-dev
+      - libcurl4-openssl-dev
+      - nasm
+      - zlib1g-dev
+      - build-essential
+
+  kartassets:
+    after: [kart-app]
+    plugin: dump
+    source: https://github.com/STJr/Kart-Public/releases/download/v1.6/AssetsLinuxOnly.zip
+    organize:
+      mdls: usr/games/SRB2Kart/mdls
+      chars.kart: usr/games/SRB2Kart/chars.kart
+      mdls.dat: usr/games/SRB2Kart/mdls.dat
+      music.kart: usr/games/SRB2Kart/music.kart
+      srb2.srb: usr/games/SRB2Kart/srb2.srb
+      maps.kart: usr/games/SRB2Kart/maps.kart
+      bonuschars.kart: usr/games/SRB2Kart/bonuschars.kart
+      gfx.kart: usr/games/SRB2Kart/gfx.kart
+      textures.kart: usr/games/SRB2Kart/textures.kart
+      sounds.kart: usr/games/SRB2Kart/sounds.kart
+    prime:
+      - usr/games/SRB2Kart
+
+  rapidjson:
+    plugin: cmake
+    source: https://github.com/Tencent/rapidjson/archive/24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz
+    source-checksum: sha256/2d2601a82d2d3b7e143a3c8d43ef616671391034bc46891a9816b79cf2d3e7a8
+    cmake-generator: Ninja
+    cmake-parameters:
+      - -DRAPIDJSON_BUILD_DOC=OFF
+      - -DRAPIDJSON_BUILD_EXAMPLES=OFF
+      - -DRAPIDJSON_BUILD_TESTS=OFF
+      - -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=OFF
+      - -DCMAKE_INSTALL_LIBDIR=lib
+    prime:
+      - -usr/include
+      - -usr/lib/cmake
+
+  discord-rpc:
+    plugin: cmake
+    source: https://github.com/discord/discord-rpc.git
+    source-tag: v3.4.0
+    cmake-generator: Ninja
+    cmake-parameters:
+      - -DBUILD_SHARED_LIBS=ON
+      - -DBUILD_EXAMPLES=OFF
+      - -DCMAKE_INSTALL_LIBDIR=lib
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    build-environment:
+      - CFLAGS: "-O3 -Wno-error"
+      - CXXFLAGS: "-O3 -Wno-error"
+    stage-packages:
+      - liblibc6
+
+  dependencies:
+    after: [rapidjson, discord-rpc, kartassets]
+    plugin: nil
+    stage-packages:
+      - libsdl2-2.0-0
+      - libdecor-0-0
+      - libfluidsynth3
+      - libinstpatch-1.0-2
+      - libjack0
+      - libmodplug1
+      - libopusfile0
+    prime:
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdecor-0.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libfluidsynth.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libinstpatch-1.0.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libjack.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libmodplug.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libopusfile.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libSDL2-2.0.so*
+
+  desktop-file:
+    after: [dependencies]
+    plugin: dump
+    source: ./desktop-file
+    prime:
+      - org.srb2.SRB2Kart.desktop
