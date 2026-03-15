@@ -9,7 +9,7 @@ platforms:
     build-on: [arm64]
     build-for: [arm64]
   armhf:
-    build-on: [armhf]
+    build-on: [arm64]
     build-for: [armhf]
 summary: Kart racing mod based on the 3D Sonic fangame Sonic Robo Blast 2
 description: |
