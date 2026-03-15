@@ -7,21 +7,24 @@ on:
   workflow_dispatch:
 
 jobs:
-  native-build:
+  test-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - name: Build Snap
-        uses: snapcore/action-build@v1
-        id: snapcraft
-        with:
-          snapcraft-args: --destructive-mode
+      - name: Install snapcraft cli
+        run: |
+          sudo snap install snapcraft --classic
 
-      - name: Upload Debug Artifact
-        uses: actions/upload-artifact@v4
+      - name: Build snap
+        run: |
+          sudo snapcraft pack --destructive-mode
+        env:
+          SNAPCRAFT_BUILD_ENVIRONMENT: host
+
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
         with:
-          name: srb2kart-test-build
-          path: ${{ steps.snapcraft.outputs.snap }}
-          retention-days: 7
+          name: srb2kart-build
+          path: "*.snap"
