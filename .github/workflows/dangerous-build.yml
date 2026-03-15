@@ -45,16 +45,17 @@ jobs:
         run: |
           # swap core
           sed -i 's/base: core24/base: core18/g' snapcraft.yaml
-          
-          # swap gnome with older variant
+          # swap gnome extension to older variant
+          # cuz just gnome doesn't exist for core18 i think
           sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-34 \]/g' snapcraft.yaml
           
-          # rename cmake params
-          sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
+          # swap platforms block for the architectures one
+          # cuz that's what older snapcraft uses
+          sed -i '/platforms:/,/summary:/ { /summary:/!d }' snapcraft.yaml
+          sed -i '/summary:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
           
-          # change arch syntax
-          sed -i '/platforms:/,/parts:/ { /parts:/!d }' snapcraft.yaml
-          sed -i '/parts:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
+          # swap cmake-parameters to configflags as used with older snapcraft
+          sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
       
       - name: Build snap
         run: |
