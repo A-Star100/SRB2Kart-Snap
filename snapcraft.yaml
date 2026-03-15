@@ -8,7 +8,7 @@ platforms:
   arm64:
     build-on: [arm64]
     build-for: [arm64]
-summary: A kart racing mod based on the 3D Sonic the Hedgehog fangame Sonic Robo Blast 2
+summary: Kart racing mod based on the 3D Sonic fangame Sonic Robo Blast 2
 description: |
   Sonic Robo Blast 2 Kart (usually shortened to SRB2Kart or SRB2K) is a kart racing game with Sonic-themed characters, items and race tracks. 
   SRB2Kart features over 100 maps for two game modes: the main Race mode and a Battle mode where players fight each other using the items available in the game.
