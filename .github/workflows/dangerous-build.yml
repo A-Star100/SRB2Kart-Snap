@@ -63,6 +63,7 @@ jobs:
           sudo snapcraft
         env:
           SNAPCRAFT_BUILD_ENVIRONMENT: host
+          USE_SYSTEM_FPM: true
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
