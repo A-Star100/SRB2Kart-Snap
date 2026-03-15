@@ -34,5 +34,34 @@ jobs:
       - name: Upload snap
         uses: actions/upload-artifact@v6
         with:
-          name: srb2kart-${{ matrix.architecture }}
+          name: srb2kart-${{ matrix.architecture }}-snap
+          path: "*.snap"
+  i386-build:
+    runs-on: ubuntu-20.04 # for the best compat we have
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Patch manifest for core18
+        run: |
+          # swap core
+          sed -i 's/base: core24/base: core18/g' snapcraft.yaml
+          
+          # swap gnome with older variant
+          sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-34 \]/g' snapcraft.yaml
+          
+          # rename cmake params
+          sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
+          
+          # change arch syntax
+          sed -i 's/platforms:/architectures:/g' snapcraft.yaml
+      
+      - name: Build snap
+        run: |
+          sudo snap install snapcraft --classic
+          sudo snapcraft pack --build-for=i386
+
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
+        with:
+          name: srb2kart-i386-snap
           path: "*.snap"
