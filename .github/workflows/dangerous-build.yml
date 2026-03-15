@@ -37,7 +37,7 @@ jobs:
           name: srb2kart-${{ matrix.architecture }}-snap
           path: "*.snap"
   i386-build:
-    runs-on: ubuntu-20.04 # for the best compat we have
+    runs-on: ubuntu-22.04 # for the best compat we have
     steps:
       - uses: actions/checkout@v6
 
