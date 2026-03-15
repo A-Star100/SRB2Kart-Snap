@@ -43,26 +43,7 @@ plugs:
     private: true
 
 parts:
-  kart-app:
-    plugin: cmake
-    source: https://github.com/STJr/Kart-Public.git
-    source-tag: v1.6
-    after: [rapidjson, discord-rpc]
-    build-packages:
-      - libsdl2-mixer-dev
-      - libsdl2-dev
-      - libupnp-dev
-      - libgme-dev
-      - libopenmpt-dev
-      - libc6-dev
-      - libpng-dev
-      - libcurl4-openssl-dev
-      - nasm
-      - zlib1g-dev
-      - build-essential
-
   kartassets:
-    after: [kart-app]
     plugin: dump
     source: https://github.com/STJr/Kart-Public/releases/download/v1.6/AssetsLinuxOnly.zip
     organize:
@@ -121,6 +102,34 @@ parts:
       sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
       rm -f ../src/.clang-format
       craftctl default    
+      
+  kart-app:
+    plugin: cmake
+    source: https://github.com/STJr/Kart-Public.git
+    source-tag: v1.6
+    after: [kartassets, rapidjson, discord-rpc]
+    build-packages:
+      - libsdl2-mixer-dev
+      - libsdl2-dev
+      - libupnp-dev
+      - libgme-dev
+      - libopenmpt-dev
+      - libc6-dev
+      - libpng-dev
+      - libcurl4-openssl-dev
+      - nasm
+      - zlib1g-dev
+      - build-essential
+    override-build: |
+      if [ -f "$SNAPCRAFT_STAGE/srb2.srb" ]; then
+          mkdir -p ../src/assets/installer
+          cp $SNAPCRAFT_STAGE/srb2.srb ../src/assets/installer/
+          cp $SNAPCRAFT_STAGE/*.kart ../src/assets/installer/
+          cp $SNAPCRAFT_STAGE/*.dat ../src/assets/installer/
+          cp -r $SNAPCRAFT_STAGE/mdls ../src/assets/installer/
+      fi
+      
+      craftctl default
 
   dependencies:
     after: [rapidjson, discord-rpc, kartassets]
