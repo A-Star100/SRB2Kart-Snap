@@ -121,14 +121,29 @@ parts:
       - zlib1g-dev
       - build-essential
     override-build: |
-      if [ -f "$SNAPCRAFT_STAGE/srb2.srb" ]; then
-          mkdir -p ../src/assets/installer
-          cp $SNAPCRAFT_STAGE/srb2.srb ../src/assets/installer/
-          cp $SNAPCRAFT_STAGE/*.kart ../src/assets/installer/
-          cp $SNAPCRAFT_STAGE/*.dat ../src/assets/installer/
-          cp -r $SNAPCRAFT_STAGE/mdls ../src/assets/installer/
+      # find assets
+      asset_base=$(find $SNAPCRAFT_STAGE -name "srb2.srb" -printf '%h' -quit)
+
+      if [ -n "$asset_base" ]; then
+          # define target (relative to src root here)
+          # snapcraft uses build for its cmake plugins
+          target_dir="../src/assets/installer"
+          mkdir -p "$target_dir"
+          
+          # cp assets
+          cp "$asset_base/srb2.srb" "$target_dir/"
+          cp "$asset_base"/*.kart "$target_dir/"
+          cp "$asset_base"/*.dat "$target_dir/"
+          
+          # cp mdls as well
+          cp -r "$asset_base/mdls" "$target_dir/"
+          
+          echo "assets copied to $target_dir"
+      else
+          echo "error: could not find needed assets"
+          exit 1
       fi
-      
+
       craftctl default
 
   dependencies:
