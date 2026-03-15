@@ -90,9 +90,11 @@ parts:
       - -DRAPIDJSON_BUILD_TESTS=OFF
       - -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=OFF
       - -DCMAKE_INSTALL_LIBDIR=lib
-      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     build-environment:
       - CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+    override-build: |
+      sed -i '1i cmake_policy(SET CMP0048 NEW)' ../src/CMakeLists.txt
+      sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
     prime:
       - -usr/include
       - -usr/lib/cmake
@@ -106,12 +108,17 @@ parts:
       - -DBUILD_SHARED_LIBS=ON
       - -DBUILD_EXAMPLES=OFF
       - -DCMAKE_INSTALL_LIBDIR=lib
-      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     build-environment:
       - CFLAGS: "-O3 -Wno-error"
       - CXXFLAGS: "-O3 -Wno-error"
       - CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+    # the below really should not be needed
+    # but discord-rpc is EOL and maintaining a fork
+    # would be sort of unreasonable when we can just use this
     override-build: |
+      sed -i '1i cmake_policy(SET CMP0048 NEW)' ../src/CMakeLists.txt
+      sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
+      
       if [ -f ../src/.clang-format ]; then
         sed -i '/IndentCaseLabels: false/d' ../src/.clang-format
         echo "IndentCaseLabels: false" >> ../src/.clang-format
