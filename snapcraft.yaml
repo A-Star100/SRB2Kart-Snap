@@ -90,6 +90,9 @@ parts:
       - -DRAPIDJSON_BUILD_TESTS=OFF
       - -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=OFF
       - -DCMAKE_INSTALL_LIBDIR=lib
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    build-environment:
+      - CMAKE_POLICY_VERSION_MINIMUM: "3.5"
     prime:
       - -usr/include
       - -usr/lib/cmake
@@ -107,6 +110,13 @@ parts:
     build-environment:
       - CFLAGS: "-O3 -Wno-error"
       - CXXFLAGS: "-O3 -Wno-error"
+      - CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+    override-build: |
+      if [ -f ../src/.clang-format ]; then
+        sed -i '/IndentCaseLabels: false/d' ../src/.clang-format
+        echo "IndentCaseLabels: false" >> ../src/.clang-format
+      fi
+      craftctl default    
 
   dependencies:
     after: [rapidjson, discord-rpc, kartassets]
