@@ -116,16 +116,23 @@ parts:
     override-pull: |
       craftctl default
       # add the left bit shift overflow patch
-      # for armhf
+      # for all arches (so it works on armhf and i386)
       # since left bit shift has not been removed
       # from source like in vanilla SRB2
       # and PR no. #15 on the github repo
-      # fixes it and was tested so
+      # fixes it and was tested
+      # and the patch will work fine on 64 bit systems anyway
       craftctl default
-      [ "$CRAFT_ARCH_BUILD_FOR" = "armhf" ] && { \
-        patchfile=$(find . -name "armhf-overflow.patch" | head -n 1); \
-        [ -n "$patchfile" ] && patch -p1 < "$patchfile" || { echo "Patch missing"; exit 1; }; \
-      }
+      patchfile=$(find . -name "bit-shift-overflow.patch" | head -n 1);
+      if [ -f "$patchfile" ]; then
+        echo "Applying bit shift overflow patch"
+        echo "This patch helps avoid 32-bit devices from crashing due to a bit shift calculation issue"
+        echo "So me (the builder) would call it a necessity"
+        echo "And will try and apply it"
+        patch -p1 < "$patchfile"
+      else
+        echo "Whoops! A patch not found at $patchfile, so proceeding without it."
+      fi
     source-tag: v1.6
     after: [kartassets, rapidjson, discord-rpc]
     build-packages:
