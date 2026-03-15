@@ -53,7 +53,8 @@ jobs:
           sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
           
           # change arch syntax
-          sed -i 's/platforms:/architectures:/g' snapcraft.yaml
+          sed -i '/platforms:/,/parts:/ { /parts:/!d }' snapcraft.yaml
+          sed -i '/parts:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
       
       - name: Build snap
         run: |
