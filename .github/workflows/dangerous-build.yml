@@ -63,6 +63,7 @@ jobs:
       - name: Build snap
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
+          sudo lxc remote add images https://images.linuxcontainers.org --protocol shiftfs || true
           sudo snapcraft --use-lxd
 
       - name: Upload snap
