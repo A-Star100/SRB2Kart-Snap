@@ -107,8 +107,6 @@ parts:
     build-environment:
       - CFLAGS: "-O3 -Wno-error"
       - CXXFLAGS: "-O3 -Wno-error"
-    stage-packages:
-      - liblibc6
 
   dependencies:
     after: [rapidjson, discord-rpc, kartassets]
