@@ -101,8 +101,18 @@ parts:
       sed -i '1i cmake_policy(SET CMP0048 NEW)' ../src/CMakeLists.txt
       sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
       rm -f ../src/.clang-format
+
       craftctl default    
       
+      rpc=$(find . -name "libdiscord-rpc.so" -type f -print -quit)
+      
+      if [ -n "$rpc" ]; then
+          mkdir -p "$CRAFT_PART_INSTALL/usr/lib"
+          cp "$rpc" "$CRAFT_PART_INSTALL/usr/lib/"
+      else
+          echo "error: libdiscord-rpc.so not found"
+          exit 1
+      fi      
   kart-app:
     plugin: cmake
     source: https://github.com/STJr/Kart-Public.git
@@ -146,11 +156,27 @@ parts:
 
       craftctl default
 
+      # find binary
+      # cuz i don't wanna look for it right now
+      kart=$(find . -name "srb2kart" -type f -executable -print -quit)
+
+      # check if the binary exists and then move it
+      # to satisfy the packer when its doing its job
+      if [ -n "$kart" ]; then
+          echo "found binary at $kart, moving to install destination"
+          mkdir -p "$CRAFT_PART_INSTALL/usr/games/SRB2Kart"
+          cp "$kart" "$CRAFT_PART_INSTALL/usr/games/SRB2Kart/srb2kart"
+      else
+          echo "error: srb2kart binary not found after build"
+          exit 1
+      fi
   dependencies:
     after: [rapidjson, discord-rpc, kartassets]
     plugin: nil
     stage-packages:
       - libsdl2-2.0-0
+      - libsdl2-mixer-2.0-0
+      - libsamplerate0
       - libdecor-0-0
       - libfluidsynth3
       - libinstpatch-1.0-2
@@ -158,13 +184,7 @@ parts:
       - libmodplug1
       - libopusfile0
     prime:
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdecor-0.so*
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libfluidsynth.so*
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libinstpatch-1.0.so*
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libjack.so*
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libmodplug.so*
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libopusfile.so*
-      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libSDL2-2.0.so*
+      - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/*
       - usr/lib/libdiscord-rpc.so*
 
   desktop-file:
