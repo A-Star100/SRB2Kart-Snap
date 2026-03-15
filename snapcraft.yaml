@@ -24,6 +24,7 @@ apps:
     environment:
       HOME: $SNAP_USER_COMMON
       SRB2WADDIR: $SNAP/usr/games/SRB2Kart
+      LD_LIBRARY_PATH: $SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$LD_LIBRARY_PATH
     extensions: [gnome]
     plugs:
       - unity7
@@ -128,6 +129,7 @@ parts:
       - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libmodplug.so*
       - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libopusfile.so*
       - usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libSDL2-2.0.so*
+      - usr/lib/libdiscord-rpc.so*
 
   desktop-file:
     after: [dependencies]
