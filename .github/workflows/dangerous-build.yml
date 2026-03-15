@@ -58,7 +58,7 @@ jobs:
           sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
 
       - name: Setup lxd
-        uses: canonical/setup-lxd@1
+        uses: canonical/setup-lxd@v1
       
       - name: Build snap
         run: |
