@@ -121,10 +121,11 @@ parts:
       # from source like in vanilla SRB2
       # and PR no. #15 on the github repo
       # fixes it and was tested so
-      if [ "$CRAFT_ARCH_BUILD_FOR" = "armhf" ]; then
-        echo "Applying patches for armhf..."
-        patch -p1 < patches/armhf-overflow.patch
-      fi
+      craftctl default
+      [ "$CRAFT_ARCH_BUILD_FOR" = "armhf" ] && { \
+        patchfile=$(find . -name "armhf-overflow.patch" | head -n 1); \
+        [ -n "$patchfile" ] && patch -p1 < "$patchfile" || { echo "Patch missing"; exit 1; }; \
+      }
     source-tag: v1.6
     after: [kartassets, rapidjson, discord-rpc]
     build-packages:
