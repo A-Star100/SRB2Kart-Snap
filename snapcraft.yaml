@@ -8,6 +8,9 @@ platforms:
   arm64:
     build-on: [arm64]
     build-for: [arm64]
+  armhf:
+    build-on: [armhf]
+    build-for: [armhf]
 summary: Kart racing mod based on the 3D Sonic fangame Sonic Robo Blast 2
 description: |
   Sonic Robo Blast 2 Kart (usually shortened to SRB2Kart or SRB2K) is a kart racing game with Sonic-themed characters, items and race tracks. 
@@ -116,6 +119,18 @@ parts:
   kart-app:
     plugin: cmake
     source: https://github.com/STJr/Kart-Public.git
+    override-pull: |
+      craftctl default
+      # add the left bit shift overflow patch
+      # for armhf
+      # since left bit shift has not been removed
+      # from source like in vanilla SRB2
+      # and PR no. #15 on the github repo
+      # fixes it and was tested so
+      if [ "$CRAFT_ARCH_BUILD_FOR" = "armhf" ]; then
+        echo "Applying patches for armhf..."
+        patch -p1 < patches/armhf-overflow.patch
+      fi
     source-tag: v1.6
     after: [kartassets, rapidjson, discord-rpc]
     build-packages:
