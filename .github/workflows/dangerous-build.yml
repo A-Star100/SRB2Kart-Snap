@@ -71,3 +71,32 @@ jobs:
         with:
           name: srb2kart-i386-snap
           path: "*.snap"
+
+  riscv64-build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install qemu for emulation
+        run: |
+          sudo apt-get update
+          # for qemu and binary changes in kernel level
+          # so we can even do riscv64
+          sudo apt-get install -y qemu-user-static binfmt-support
+          sudo update-binfmts --enable qemu-riscv64 # now enable riscv64 super fast
+                                                    # so qemu doesn't take its time
+                                                    # using the binfmt cli from binfmt-support
+
+      - name: Setup lxd
+        uses: canonical/setup-lxd@v1
+      
+      - name: Build snap
+        run: |
+          sudo snap install snapcraft --classic --channel=latest/stable
+          sudo snapcraft --use-lxd
+
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
+        with:
+          name: srb2kart-riscv64-snap
+          path: "*.snap"
