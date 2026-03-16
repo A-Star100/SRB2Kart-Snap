@@ -98,12 +98,30 @@ jobs:
           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # register qemu
           # so it takes effect finally now
 
-      # - name: Patch manifest
-      #   run: |
-      #     # was used earlier but now isnt needed
-      #     sed -i '/amd64:/d' snapcraft.yaml
-      #     sed -i '/arm64:/d' snapcraft.yaml
-      #     sed -i '/armhf:/d' snapcraft.yaml
+      - name: Patch manifest
+        run: |
+          cat <<EOF > build-patch.yaml
+          platforms:
+            riscv64:
+              build-on: [amd64]
+              build-for: [riscv64]
+          EOF
+          # use a heredoc so snapcraft knows we're using amd64
+          # but build for riscv64
+          # using the registered qemu
+          # since it whines about not being able to build a snap
+          # with amd64 AND riscv64 support for some reason
+          
+          # now use sed to patch the platforms key
+          # with our cool patch
+          sed -i '/platforms:/,/^[a-z]/ { /platforms:/! { /^[a-z]/!d } }' snapcraft.yaml
+          sed -i '/platforms:/d' snapcraft.yaml
+          
+          # maybe a patchfile would be better tho
+          cat build-patch.yaml >> snapcraft.yaml
+          
+          # double check the yaml after the heredoc
+          cat snapcraft.yaml
 
       - name: Setup lxd
         uses: canonical/setup-lxd@v1
