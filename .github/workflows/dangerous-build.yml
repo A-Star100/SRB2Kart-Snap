@@ -41,6 +41,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Install qemu for emulation
+        run: |
+          sudo apt-get update
+          # for qemu and binary changes in kernel level
+          # so we can even do riscv64
+          sudo apt-get install -y qemu-user-static binfmt-support
+          sudo update-binfmts --enable qemu-i386 # now enable i386
+          # cuz lxd wont work without it
       - name: Patch manifest for core18
         run: |
           # swap core
@@ -63,7 +71,7 @@ jobs:
       - name: Build snap
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
-          sudo lxc remote add images https://images.linuxcontainers.org --protocol shiftfs || true
+          ##sudo lxc remote add images https://images.linuxcontainers.org --protocol shiftfs || true
           sudo snapcraft --use-lxd
 
       - name: Upload snap
