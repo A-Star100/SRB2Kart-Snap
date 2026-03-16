@@ -93,7 +93,13 @@ jobs:
           sudo apt-get install -y qemu-user-static binfmt-support
           sudo update-binfmts --enable qemu-riscv64 # now enable riscv64 super fast
                                                     # so qemu doesn't take its time
-                                                    # using the binfmt cli from binfmt-support
+                                                    # using the binfmt cli from binfmt-support'
+
+      - name: Patch manifest so it builds just for riscv64
+        run: |
+          sed -i '/amd64:/d' snapcraft.yaml
+          sed -i '/arm64:/d' snapcraft.yaml
+          sed -i '/armhf:/d' snapcraft.yaml
 
       - name: Setup lxd
         uses: canonical/setup-lxd@v1
