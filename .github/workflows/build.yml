@@ -50,17 +50,19 @@ jobs:
         run: |
           # swap core
           sed -i 's/base: core24/base: core18/g' snapcraft.yaml
-          # swap gnome extension to older variant
-          # cuz the newer gnome we're using doesn't exist on core18
-          sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-28 \]/g' snapcraft.yaml
           
           # swap platforms block for the architectures one
           # cuz that's what older snapcraft uses
           sed -i '/platforms:/,/summary:/ { /summary:/!d }' snapcraft.yaml
           sed -i '/summary:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
-          
-          # swap cmake-parameters to configflags as used with older snapcraft
-          sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
+
+          # remove extension line
+          # cuz snapcraft says that gnome doesn't exist
+          # in core18 even though that is false
+          sed -i '/extensions:/d' snapcraft.yaml
+
+          # add desktop-gtk3 dev build package
+          sed -i '/build-packages:/a \      - libgtk-3-dev:i386\n      - desktop-file-utils' snapcraft.yaml
 
       # - name: Setup lxd
       #   uses: canonical/setup-lxd@v1
