@@ -1,0 +1,62 @@
+name: Publish to Snap Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Channel to release to'
+        required: true
+        default: 'edge'
+        type: choice
+        options: [edge, stable, beta, canary]
+  workflow_call:
+    inputs:
+      channel:
+        type: string
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Download all snaps
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p final-snaps
+          # pulls all the snaps
+          gh run download --dir final-snaps --pattern "*-snap"
+
+      - name: Setup Snapcraft
+        run: | 
+          sudo snap install snapcraft --classic --channel=latest/stable
+          echo "/snap/bin" >> $GITHUB_PATH
+
+      - name: Publish to Snap Store
+        shell: bash
+        env:
+          SNAPCRAFT_STORE_AUTH: candid
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.STORE_LOGIN }}
+          target_channel: ${{ github.event.inputs.channel }}
+        run: |
+          echo "Target channel: $target_channel"
+          
+          base="final-snaps"
+          
+          valid=("srb2kart-amd64-snap" "srb2kart-arm64-snap" "srb2kart-riscv64-snap")
+
+          for artifact in "${valid[@]}"; do
+            subdir="$base/$artifact"
+            
+            if [ -d "$subdir" ]; then
+              echo "Checking artifact folder: $subdir"
+              find "$subdir" -name "*.snap" | while read -r snap_file; do
+                echo "Uploading $snap_file to $target_channel"
+                snapcraft upload "$snap_file" --release "$target_channel"
+              done
+            else
+              echo "An artifact wasn't found: $artifact (was expected at $subdir)"
+            fi
+          done
