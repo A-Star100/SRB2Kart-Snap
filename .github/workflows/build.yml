@@ -69,9 +69,9 @@ jobs:
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
           
-          # using -E cuz global envs will reach this command
-          # but it may not work in bash, dunno
-          sudo -E snapcraft --enable-experimental-target-arch --target-arch=i386 --use-lxd
+          newgrp lxd << 'EOF'
+            snapcraft --use-lxd
+          EOF
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
