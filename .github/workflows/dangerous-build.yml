@@ -86,7 +86,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install qemu for emulation
+      - name: Setup qemu
         run: |
           sudo apt-get update
           # for qemu and binary changes in kernel level
@@ -138,11 +138,11 @@ jobs:
           path: "*.snap"
 
   armhf-build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up qemu
+      - name: Setup qemu
         uses: docker/setup-qemu-action@v4
 
       - name: Patch manifest
@@ -150,7 +150,7 @@ jobs:
           cat <<EOF > build-patch.yaml
           platforms:
             armhf:
-              build-on: [amd64]
+              build-on: [arm64]
               build-for: [armhf]
           EOF
           # use a heredoc so snapcraft knows we're using arm64
