@@ -27,6 +27,7 @@ apps:
     plugs:
       - unity7
       - screen-inhibit-control
+      - opengl
       - audio-playback
       - network
       - network-bind
