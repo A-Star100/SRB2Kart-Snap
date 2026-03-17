@@ -51,8 +51,8 @@ jobs:
           # swap core
           sed -i 's/base: core24/base: core18/g' snapcraft.yaml
           # swap gnome extension to older variant
-          # cuz just gnome doesn't exist for core18 i think
-          sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-34 \]/g' snapcraft.yaml
+          # cuz the newer gnome we're using doesn't exist on core18
+          sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-28 \]/g' snapcraft.yaml
           
           # swap platforms block for the architectures one
           # cuz that's what older snapcraft uses
@@ -68,8 +68,13 @@ jobs:
       - name: Build snap
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
-          ##sudo lxc remote add images https://images.linuxcontainers.org --protocol shiftfs || true
-          sudo snapcraft --use-lxd
+          # make the lxd socket wake up with a for loop
+          # that will annoy it
+          for i in {1..10}; do [ -S /var/snap/lxd/common/lxd/unix.socket ] && break || sleep 2; done
+          # use sg lxd for correct group perms and to force-use lxd in this proc
+          # also in the string ENVs defined outside of it won't work
+          # so for any future debugging for anyone looking here, remember this
+          sg lxd -c "snapcraft --enable-experimental-target-arch --target-arch=i386 --use-lxd"
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
