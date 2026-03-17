@@ -37,49 +37,45 @@ jobs:
           name: srb2kart-${{ matrix.architecture }}-snap
           path: "*.snap"
           
-  # i386-build:
-  #   runs-on: ubuntu-22.04 # for the best compat we have
-  #   steps:
-  #     - uses: actions/checkout@v6
+  i386-build:
+    runs-on: ubuntu-22.04 # for the best compat we have
+    steps:
+      - uses: actions/checkout@v6
 
-  #     - name: Install qemu for emulation
-  #       run: |
-  #         sudo apt-get update
-  #         # for qemu and binary changes in kernel level
-  #         # so we can even do riscv64
-  #         sudo apt-get install -y qemu-user-static binfmt-support
-  #         sudo update-binfmts --enable qemu-i386 # now enable i386
-  #         # cuz lxd wont work without it
-  #     - name: Patch manifest for core18
-  #       run: |
-  #         # swap core
-  #         sed -i 's/base: core24/base: core18/g' snapcraft.yaml
-  #         # swap gnome extension to older variant
-  #         # cuz just gnome doesn't exist for core18 i think
-  #         sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-34 \]/g' snapcraft.yaml
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+        with:
+          platforms: i386 # hope platforms supports i386 the docs don't mention it
+      - name: Patch manifest for core18
+        run: |
+          # swap core
+          sed -i 's/base: core24/base: core18/g' snapcraft.yaml
+          # swap gnome extension to older variant
+          # cuz just gnome doesn't exist for core18 i think
+          sed -i 's/extensions: \[ gnome \]/extensions: \[ gnome-3-34 \]/g' snapcraft.yaml
           
-  #         # swap platforms block for the architectures one
-  #         # cuz that's what older snapcraft uses
-  #         sed -i '/platforms:/,/summary:/ { /summary:/!d }' snapcraft.yaml
-  #         sed -i '/summary:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
+          # swap platforms block for the architectures one
+          # cuz that's what older snapcraft uses
+          sed -i '/platforms:/,/summary:/ { /summary:/!d }' snapcraft.yaml
+          sed -i '/summary:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
           
-  #         # swap cmake-parameters to configflags as used with older snapcraft
-  #         sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
+          # swap cmake-parameters to configflags as used with older snapcraft
+          sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
 
-  #     - name: Setup lxd
-  #       uses: canonical/setup-lxd@v1
+      - name: Setup lxd
+        uses: canonical/setup-lxd@v1
       
-  #     - name: Build snap
-  #       run: |
-  #         sudo snap install snapcraft --classic --channel=7.x/stable
-  #         ##sudo lxc remote add images https://images.linuxcontainers.org --protocol shiftfs || true
-  #         sudo snapcraft --use-lxd
+      - name: Build snap
+        run: |
+          sudo snap install snapcraft --classic --channel=7.x/stable
+          ##sudo lxc remote add images https://images.linuxcontainers.org --protocol shiftfs || true
+          sudo snapcraft --use-lxd
 
-  #     - name: Upload snap
-  #       uses: actions/upload-artifact@v6
-  #       with:
-  #         name: srb2kart-i386-snap
-  #         path: "*.snap"
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
+        with:
+          name: srb2kart-i386-snap
+          path: "*.snap"
 
   riscv64-build:
     runs-on: ubuntu-24.04
