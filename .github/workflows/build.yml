@@ -68,10 +68,16 @@ jobs:
       - name: Build snap
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
-          
-          newgrp lxd << 'EOF'
-            echo "" | snapcraft --use-lxd
-          EOF
+
+          # hopefully it doesn't ask for password
+          # if we chmod this properly
+          # if it does then...
+          sudo chmod 666 /var/snap/lxd/common/lxd/unix.socket
+
+          # force the socket to be recognized now
+          lxc query /1.0
+
+          snapcraft --use-lxd
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
