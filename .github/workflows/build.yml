@@ -81,9 +81,13 @@ jobs:
           # trust the apt sources
           # not just for the soundfont lib
           # in case this happens with other libs
+          # using an apt config
           # no idea why this only happens here
           # guess it is core18 or snapcraft v7??
-          sudo sed -i 's/deb http/deb [trusted=yes] http/g' /etc/apt/sources.list
+          echo "Acquire::AllowInsecureRepositories \"true\";
+          Acquire::AllowUnauthenticated \"true\";
+          APT::Get::AllowUnauthenticated \"true\";
+          Acquire::https::Verify-Peer \"false\";" | sudo tee /etc/apt/apt.conf.d/99force-trust
           
           # enable multiverse cuz of the soundfont lib timgm6mb-soundfont
           sudo apt-add-repository multiverse -y
