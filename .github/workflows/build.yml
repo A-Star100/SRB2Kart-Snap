@@ -69,7 +69,9 @@ jobs:
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
           
-          echo "" | snapcraft --use-lxd
+          newgrp lxd << 'EOF'
+            echo "" | snapcraft --use-lxd
+          EOF
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
