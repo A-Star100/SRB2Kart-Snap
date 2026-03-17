@@ -150,7 +150,7 @@ jobs:
           cat <<EOF > build-patch.yaml
           platforms:
             armhf:
-              build-on: [arm64]
+              build-on: [amd64]
               build-for: [armhf]
           EOF
           # use a heredoc so snapcraft knows we're using arm64
