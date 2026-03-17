@@ -72,6 +72,11 @@ jobs:
           #####sed -i '/build-packages:/a \      - libgtk-3-dev:i386\n      - libglib2.0-dev:i386' snapcraft.yaml
           # end of old code
 
+          # craftctl doesn't exist on core18...
+          sed -i '/override-pull:/,/^  [a-z]/ s/craftctl default/snapcraftctl pull/' snapcraft.yaml
+          sed -i '/override-build:/,/^  [a-z]/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
+          # swap ENV beginning parts (may not work properly, but we will see)
+          sed -i 's/\$CRAFT_/\$SNAPCRAFT_/g' snapcraft.yaml
       # - name: Setup lxd
       #   uses: canonical/setup-lxd@v1
       
