@@ -182,7 +182,7 @@ jobs:
       - name: Upload snap
         uses: actions/upload-artifact@v6
         with:
-          name: srb2kart-riscv64-snap
+          name: srb2kart-armhf-snap
           path: "*.snap"
 
   publish-snap:
