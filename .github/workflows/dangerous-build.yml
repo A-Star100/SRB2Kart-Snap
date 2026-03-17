@@ -136,3 +136,67 @@ jobs:
         with:
           name: srb2kart-riscv64-snap
           path: "*.snap"
+
+  armhf-build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install qemu for emulation
+        run: |
+          sudo apt-get update
+          # for qemu and binary changes in kernel level
+          # so even if the chip doesn't have 32 bit cores
+          # (which could be a reason why armhf builds might fail)
+          sudo apt-get install -y qemu-user-static binfmt-support
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # register qemu
+          # so it takes effect finally now
+
+      - name: Patch manifest
+        run: |
+          cat <<EOF > build-patch.yaml
+          platforms:
+            armhf:
+              build-on: [arm64]
+              build-for: [armhf]
+          EOF
+          # use a heredoc so snapcraft knows we're using arm64
+          # but build for armhf
+          # using the registered qemu
+          # since it whined about not being able to build a snap
+          # with amd64 AND riscv64 support for some reason
+          # in the riscv64 build workflow
+          
+          # now use sed to patch the platforms key
+          # with our cool patch
+          sed -i '/platforms:/,/^[a-z]/ { /platforms:/! { /^[a-z]/!d } }' snapcraft.yaml
+          sed -i '/platforms:/d' snapcraft.yaml
+          
+          # maybe a patchfile would be better tho
+          cat build-patch.yaml >> snapcraft.yaml
+          
+          # double check the yaml after the heredoc
+          cat snapcraft.yaml
+
+      - name: Setup lxd
+        uses: canonical/setup-lxd@v1
+      
+      - name: Build snap
+        run: |
+          sudo snap install snapcraft --classic --channel=latest/stable
+          sudo snapcraft --use-lxd --build-for=armhf
+
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
+        with:
+          name: srb2kart-riscv64-snap
+          path: "*.snap"
+
+  publish-snap:
+    needs: [test-build,riscv64-build,armhf-build]
+    # very lengthy if warning
+    if: always() && needs.test-build.result == 'success' && needs.riscv64-build.result == 'success' && needs.armhf--build.result == 'success'
+    uses: ./.github/workflows/publish_snap.yml
+    with:
+      channel: 'edge'
+    secrets: inherit
