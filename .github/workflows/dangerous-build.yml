@@ -185,11 +185,11 @@ jobs:
           name: srb2kart-armhf-snap
           path: "*.snap"
 
-  publish-snap:
-    needs: [test-build,riscv64-build,armhf-build]
-    # very lengthy if warning
-    if: always() && needs.test-build.result == 'success' && needs.riscv64-build.result == 'success' && needs.armhf-build.result == 'success'
-    uses: ./.github/workflows/publish-snap.yml
-    with:
-      channel: 'edge'
-    secrets: inherit
+  # publish-snap:
+  #   needs: [test-build,riscv64-build,armhf-build]
+  #   # very lengthy if warning
+  #   if: always() && needs.test-build.result == 'success' && needs.riscv64-build.result == 'success' && needs.armhf-build.result == 'success'
+  #   uses: ./.github/workflows/publish-snap.yml
+  #   with:
+  #     channel: 'edge'
+  #   secrets: inherit
