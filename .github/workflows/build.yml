@@ -77,6 +77,19 @@ jobs:
           sed -i '/override-build:/,/^  [a-z]/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
           # swap ENV beginning parts (may not work properly, but we will see)
           sed -i 's/\$CRAFT_/\$SNAPCRAFT_/g' snapcraft.yaml
+
+          # trust the apt sources
+          # not just for the soundfont lib
+          # in case this happens with other libs
+          # no idea why this only happens here
+          # guess it is core18 or snapcraft v7??
+          sudo sed -i 's/deb http/deb [trusted=yes] http/g' /etc/apt/sources.list
+          
+          # enable multiverse cuz of the soundfont lib timgm6mb-soundfont
+          sudo apt-add-repository multiverse -y
+          
+          # apply
+          sudo apt-get update
       # - name: Setup lxd
       #   uses: canonical/setup-lxd@v1
       
