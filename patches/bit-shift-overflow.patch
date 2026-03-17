@@ -1,6 +1,6 @@
 --- a/src/z_zone.c
 +++ b/src/z_zone.c
-@@ -457,5 +457,5 @@
+@@ -245,5 +245,5 @@
  #endif
  
  	size_t            size;
