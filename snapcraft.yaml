@@ -70,8 +70,13 @@ parts:
       - -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=OFF
       - -DCMAKE_INSTALL_LIBDIR=lib
     build-environment:
-      - CMAKE_POLICY_VERSION_MINIMUM: "3.5"
+      - CMAKE_POLICY_VERSION_MINIMUM: "3.5" # i think this should work
     override-build: |
+      # for some reason when building with snapcraft
+      # the compiler ignores any env variables to set the minimum policy
+      # unlike the srb2kart flatpak where it is actually used properly
+      # do not know why precisely, but it might be because
+      # the ENVs aren't being passed properly
       sed -i '1i cmake_policy(SET CMP0048 NEW)' ../src/CMakeLists.txt
       sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
     prime:
@@ -96,6 +101,8 @@ parts:
     # but discord-rpc is EOL and maintaining a fork
     # would be sort of unreasonable when we can just use this
     override-build: |
+      # more info on this in the rapidjson part
+      # of yaml
       sed -i '1i cmake_policy(SET CMP0048 NEW)' ../src/CMakeLists.txt
       sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
       rm -f ../src/.clang-format
@@ -124,16 +131,19 @@ parts:
       # fixes it and was tested
       # and the patch will work fine on 64 bit systems anyway
       craftctl default
-      patchfile=$(find . -name "bit-shift-overflow.patch" | head -n 1);
-      if [ -f "$patchfile" ]; then
-        echo "Applying bit shift overflow patch"
-        echo "This patch helps avoid 32-bit devices from crashing due to a bit shift calculation issue"
-        echo "So me (the builder) would call it a necessity"
-        echo "And will try and apply it"
-        patch -p1 < "$patchfile"
-      else
-        echo "Whoops! A patch not found at $patchfile, so proceeding without it."
-      fi
+      patch_file () {
+        patchfile=$1
+        if [ -f "$patchfile" ]; then
+          echo "Applying $patchfile"
+          # echo "This patch helps avoid 32-bit devices from crashing due to a bit shift calculation issue"
+          # echo "So me (the builder) would call it a necessity"
+          # echo "And will try and apply it"
+          patch -p1 < "$patchfile"
+        else
+          echo "Whoops! Patch not found $patchfile, so proceeding without it."
+        fi
+      }
+      patch_file "$(find . -name "bit-shift-overflow.patch" | head -n 1);"
     source-tag: v1.6
     after: [kartassets, rapidjson, discord-rpc]
     build-packages:
