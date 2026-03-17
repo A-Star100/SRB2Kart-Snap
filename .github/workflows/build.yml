@@ -171,6 +171,13 @@ jobs:
           # double check the yaml after the heredoc
           cat snapcraft.yaml
 
+          # long sed warning
+          # patch the snapcraft.yaml
+          # again so the linter does not whine about
+          # missing libs because it did that in one build
+          # and i would rather not break armhf potentially
+          sed -i '/dependencies:/,/prime:/ s|prime:|prime:\n      - usr/local/srb2kart/*.so*\n      - usr/games/SRB2Kart/*.so*|' snapcraft.yaml
+
       - name: Setup lxd
         uses: canonical/setup-lxd@v1
       
