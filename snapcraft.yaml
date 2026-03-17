@@ -27,6 +27,8 @@ apps:
     plugs:
       - unity7
       - screen-inhibit-control
+      - x11
+      - wayland
       - opengl
       - audio-playback
       - network
