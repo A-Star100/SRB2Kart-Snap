@@ -5,9 +5,9 @@
  
  	size_t            size;
 -	size_t            extrabytes = (1<<alignbits) - 1;
-+	 // from STJr/Kart-Public pr number 15
-+	 // according to PR it patches segmentation faults on armhf via
-+  // not subtracting 1 when an overflow is guaranteed to have occurred
++	//  from STJr/Kart-Public pr number 15
++	//  according to PR it patches segmentation faults on armhf via
++ //  not subtracting 1 when an overflow is guaranteed to have occurred
 +	size_t            extrabytes = (1<<alignbits) - (sizeof(size_t)*8 > (UINT32) alignbits);
  	memblock_t        *block;
  	void              *ptr;
