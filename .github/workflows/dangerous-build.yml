@@ -149,7 +149,8 @@ jobs:
           # so even if the chip doesn't have 32 bit cores
           # (which could be a reason why armhf builds might fail)
           sudo apt-get install -y qemu-user-static binfmt-support
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # register qemu
+          sudo update-binfmts --enable qemu-armhf
+          docker run --rm --privileged multiarch/qemu-user-static --credential yes --persistent yes # register qemu
           # so it takes effect finally now
 
       - name: Patch manifest
