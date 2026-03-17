@@ -74,8 +74,10 @@ jobs:
           # if it does then...
           sudo chmod 666 /var/snap/lxd/common/lxd/unix.socket
 
-          # force the socket to be recognized now
-          lxc query /1.0
+          # okay just force add the socket
+          # if this doesn't work.......
+          lxc remote add local unix:///var/snap/lxd/common/lxd/unix.socket --accept-certificate || true
+          lxc remote switch local
 
           snapcraft --use-lxd
 
