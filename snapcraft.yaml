@@ -125,7 +125,7 @@ parts:
     plugin: cmake
     source: https://github.com/STJr/Kart-Public.git
     override-pull: |
-      craftctl default
+      #craftctl default
       # add the left bit shift overflow patch
       # for all arches (so it works on armhf and i386)
       # since left bit shift has not been removed
@@ -134,19 +134,21 @@ parts:
       # fixes it and was tested
       # and the patch will work fine on 64 bit systems anyway
       craftctl default
+      project="${CRAFT_PROJECT_DIR:-$SNAPCRAFT_PROJECT_DIR}"
       patch_file () {
         patchfile=$1
         if [ -f "$patchfile" ]; then
           echo "Applying $patchfile"
-          # echo "This patch helps avoid 32-bit devices from crashing due to a bit shift calculation issue"
-          # echo "So me (the builder) would call it a necessity"
-          # echo "And will try and apply it"
           patch -p1 < "$patchfile"
         else
-          echo "Whoops! Patch not found $patchfile, so proceeding without it."
+          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
+          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
+          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
+          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
+          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
         fi
       }
-      patch_file "$(find . -name "bit-shift-overflow.patch" | head -n 1);"
+      patch_file "$project/patches/bit-shift-overflow.patch"
     source-tag: v1.6
     after: [kartassets, rapidjson, discord-rpc]
     build-packages:
