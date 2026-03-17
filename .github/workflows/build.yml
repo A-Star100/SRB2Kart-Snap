@@ -42,10 +42,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
-        with:
-          platforms: i386 # hope platforms supports i386 the docs don't mention it
+      # - name: Set up QEMU
+      #   uses: docker/setup-qemu-action@v4
+      #   with:
+      #     platforms: i386 # hope platforms supports i386 the docs don't mention it
       - name: Patch manifest for core18
         run: |
           # swap core
@@ -65,21 +65,41 @@ jobs:
       - name: Setup lxd
         uses: canonical/setup-lxd@v1
       
+      # - name: Build snap 
+      # (this is old one that used stupid lxd workarounds that didn't even work)
+      #   run: |
+      #     sudo snap install snapcraft --classic --channel=7.x/stable
+
+      #     # hopefully it doesn't ask for password
+      #     # if we chmod this properly
+      #     # if it does then...
+      #     sudo chmod 666 /var/snap/lxd/common/lxd/unix.socket
+
+      #     # okay just force add the socket
+      #     # if this doesn't work.......
+      #     lxc remote add local unix:///var/snap/lxd/common/lxd/unix.socket --accept-certificate || true
+      #     lxc remote switch local
+
+      #     snapcraft --use-lxd
+
       - name: Build snap
         run: |
+          # add i386 packages
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          
+          # snapcraft v7 is the last to support core18
+          # and core18 is the last core to support i386
+          # so anyone debugging don't upgrade core or snapcraft
+          # snapcraft v8 with core24 wont work for i386
           sudo snap install snapcraft --classic --channel=7.x/stable
 
-          # hopefully it doesn't ask for password
-          # if we chmod this properly
-          # if it does then...
-          sudo chmod 666 /var/snap/lxd/common/lxd/unix.socket
-
-          # okay just force add the socket
-          # if this doesn't work.......
-          lxc remote add local unix:///var/snap/lxd/common/lxd/unix.socket --accept-certificate || true
-          lxc remote switch local
-
-          snapcraft --use-lxd
+          # setarch just spoofs what arch values it passes
+          # directly to the snapcraft proc
+          # so it doesn't detect the host arch properly
+          # and do an amd64 build
+          # dunno if this will work too well with --destructive-mode tho
+          setarch i386 snapcraft --destructive-mode
 
       - name: Upload snap
         uses: actions/upload-artifact@v6
