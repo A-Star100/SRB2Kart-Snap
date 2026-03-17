@@ -56,13 +56,21 @@ jobs:
           sed -i '/platforms:/,/summary:/ { /summary:/!d }' snapcraft.yaml
           sed -i '/summary:/i architectures:\n  - build-on: [amd64, i386]\n    run-on: [i386]\n' snapcraft.yaml
 
+          # use configflags as replacement for cmake-parameters
+          # i thought i misread the docs but turns out i didnt
+          sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
+          sed -i '/cmake-generator:/d' snapcraft.yaml
+
           # remove extension line
           # cuz snapcraft says that gnome doesn't exist
           # in core18 even though that is false
           sed -i '/extensions:/d' snapcraft.yaml
 
-          # add desktop-gtk3 dev build package
-          sed -i '/build-packages:/a \      - libgtk-3-dev:i386\n      - desktop-file-utils' snapcraft.yaml
+          # the libgtk packages basically
+          # do the same stuff that gnome extension did
+          # old code
+          #####sed -i '/build-packages:/a \      - libgtk-3-dev:i386\n      - libglib2.0-dev:i386' snapcraft.yaml
+          # end of old code
 
       # - name: Setup lxd
       #   uses: canonical/setup-lxd@v1
