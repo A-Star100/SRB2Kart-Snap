@@ -62,8 +62,8 @@ jobs:
           # swap cmake-parameters to configflags as used with older snapcraft
           sed -i 's/cmake-parameters:/configflags:/g' snapcraft.yaml
 
-      - name: Setup lxd
-        uses: canonical/setup-lxd@v1
+      # - name: Setup lxd
+      #   uses: canonical/setup-lxd@v1
       
       # - name: Build snap 
       # (this is old one that used stupid lxd workarounds that didn't even work)
