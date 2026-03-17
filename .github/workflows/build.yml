@@ -69,10 +69,6 @@ jobs:
         run: |
           sudo snap install snapcraft --classic --channel=7.x/stable
           
-          # make the lxd socket wake up with a for loop
-          # that will annoy it
-          for i in {1..10}; do [ -S /var/snap/lxd/common/lxd/unix.socket ] && break || sleep 2; done
-          
           # use sg lxd for correct group perms and to force-use lxd in this proc
           # also in the string ENVs defined outside of it won't work
           # so for any future debugging for anyone looking here, remember this
