@@ -139,13 +139,12 @@ parts:
         patchfile=$1
         if [ -f "$patchfile" ]; then
           echo "Applying $patchfile"
-          patch -p1 < "$patchfile"
+          # ignore the whitespaces
+          # and search 3 lines up and down for the one to patch
+          # in case it changes in source
+          patch -p1 -l --fuzz 3 < "$patchfile"
         else
-          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
-          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
-          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
-          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
-          echo "WARNING: Patch not found $patchfile, so proceeding without it. This could break the build output."
+          for i in {1..5}; do echo "WARNING: Patch not found $patchfile, proceeding without it."; done
         fi
       }
       patch_file "$project/patches/bit-shift-overflow.patch"
