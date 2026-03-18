@@ -74,15 +74,20 @@ jobs:
 
 
           # craftctl doesn't exist on core18...
-          sed -i '/override-pull:/,/^  [a-z]/ s/craftctl default/snapcraftctl pull/' snapcraft.yaml
-          sed -i '/override-build:/,/^  [a-z]/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
-          
+          sed -i '/override-pull:/{n;s/craftctl default/snapcraftctl pull/}' snapcraft.yaml         
+          sed -i '/override-build:/{n;s/craftctl default/snapcraftctl build/}' snapcraft.yaml
+
+          # below is a last resort
+          # not a good idea
+          ####sed -i '/discord-rpc:/,/kart-app:/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
+                    
           # swap ENV beginning parts (may not work properly, but we will see)
           sed -i 's/\$CRAFT_/\$SNAPCRAFT_/g' snapcraft.yaml
           
           # patch find command for binary
           # to SNAPCRAFT_PART_BUILD from cwd (.)
-          sed -i 's/kart=$(find . -name "srb2kart"/kart=$(find ..\/..\/..\/.. -name "srb2kart"/g' snapcraft.yaml         
+          sed -i 's/kart=$(find . -name "srb2kart"/kart=$(find ..\/..\/..\/.. -name "srb2kart"/g' snapcraft.yaml   
+          sed -i 's/-name "srb2kart"/-iname "*srb2kart*"/g' snapcraft.yaml
           sed -i 's/rpc=$(find . -name "libdiscord-rpc.so"/rpc=$(find ..\/..\/..\/.. -name "libdiscord-rpc.so"/g' snapcraft.yaml
 
           
