@@ -89,7 +89,7 @@ jobs:
           
           # patch find command for binary
           # to SNAPCRAFT_PART_BUILD from cwd (.)
-          sed -i 's/kart=$(find . -name "srb2kart"/kart=$(find ..\/..\/..\/.. -name "srb2kart"/g' snapcraft.yaml   
+          sed -i 's/kart=$(find . -name "srb2kart"/kart=$(find . "$SNAPCRAFT_PART_BUILD" "$SNAPCRAFT_STAGE" -iname "*srb2kart*"/g' snapcraft.yaml
           sed -i 's/-name "srb2kart"/-iname "*srb2kart*"/g' snapcraft.yaml
           sed -i 's/rpc=$(find . -name "libdiscord-rpc.so"/rpc=$(find ..\/..\/..\/.. -name "libdiscord-rpc.so"/g' snapcraft.yaml
 
