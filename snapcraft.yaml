@@ -110,17 +110,23 @@ parts:
       sed -i '1i set(CMAKE_POLICY_VERSION_MINIMUM 3.5)' ../src/CMakeLists.txt
       rm -f ../src/.clang-format
 
-      craftctl default    
+      # fallback for core18
+      # since craftctl aint a thing there
+      if command -v craftctl >/dev/null; then craftctl default; else snapcraftctl build; fi
       
-      rpc=$(find . -name "libdiscord-rpc.so" -type f -print -quit)
-      
+      # fallback for core18 as well
+      # since CRAFT envs dont exist in it
+      rpc=$(find "$CRAFT_PART_BUILD" "$SNAPCRAFT_PART_BUILD" "." -maxdepth 4 -name "libdiscord-rpc.so" -type f -print -quit)
+
+      # more fallbacks for envs and stuff
+      # because sed patches just won't work well
       if [ -n "$rpc" ]; then
-          mkdir -p "$CRAFT_PART_INSTALL/usr/lib"
-          cp "$rpc" "$CRAFT_PART_INSTALL/usr/lib/"
+          mkdir -p "$CRAFT_PART_INSTALL/usr/lib" "$SNAPCRAFT_PART_INSTALL/usr/lib"
+          cp "$rpc" "${CRAFT_PART_INSTALL:-$SNAPCRAFT_PART_INSTALL}/usr/lib/"
       else
           echo "error: libdiscord-rpc.so not found"
           exit 1
-      fi      
+      fi   
   kart-app:
     plugin: cmake
     source: https://github.com/STJr/Kart-Public.git
