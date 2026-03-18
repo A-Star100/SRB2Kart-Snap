@@ -190,6 +190,9 @@ jobs:
               prime:
                 - org.srb2.SRB2Kart.desktop
           EOF
+
+          # to patch CVE-2020-27348
+          sed -i 's/:$LD_LIBRARY_PATH/:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}/g' snapcraft.yaml
           echo "patched yaml:"
           cat snapcraft.yaml
       # - name: Setup lxd
