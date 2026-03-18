@@ -74,8 +74,8 @@ jobs:
 
 
           # craftctl doesn't exist on core18...
-          sed -i '/override-pull:/{n;s/craftctl default/snapcraftctl pull/}' snapcraft.yaml         
-          sed -i '/override-build:/{n;s/craftctl default/snapcraftctl build/}' snapcraft.yaml
+          sed -i '/override-pull:/,/craftctl default/ s/craftctl default/snapcraftctl pull/' snapcraft.yaml
+          sed -i '/override-build:/,/craftctl default/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
 
           # below is a last resort
           # not a good idea
@@ -107,6 +107,9 @@ jobs:
           
           # apply
           sudo apt-get update
+
+          echo "patched yaml:"
+          cat snapcraft.yaml
       # - name: Setup lxd
       #   uses: canonical/setup-lxd@v1
       
