@@ -36,7 +36,124 @@ jobs:
         with:
           name: srb2kart-${{ matrix.architecture }}-snap
           path: "*.snap"
+
+  riscv64-build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup qemu
+        run: |
+          sudo apt-get update
+          # for qemu and binary changes in kernel level
+          # so we can even do riscv64
+          sudo apt-get install -y qemu-user-static binfmt-support
+          sudo update-binfmts --enable qemu-riscv64 # now enable riscv64 super fast
+                                                    # so qemu doesn't take its time
+                                                    # using the binfmt cli from binfmt-support'
+          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # register qemu
+          # so it takes effect finally now
+
+      - name: Patch manifest
+        run: |
+          cat <<EOF > build-patch.yaml
+          platforms:
+            riscv64:
+              build-on: [amd64]
+              build-for: [riscv64]
+          EOF
+          # use a heredoc so snapcraft knows we're using amd64
+          # but build for riscv64
+          # using the registered qemu
+          # since it whines about not being able to build a snap
+          # with amd64 AND riscv64 support for some reason
           
+          # now use sed to patch the platforms key
+          # with our cool patch
+          sed -i '/platforms:/,/^[a-z]/ { /platforms:/! { /^[a-z]/!d } }' snapcraft.yaml
+          sed -i '/platforms:/d' snapcraft.yaml
+
+          # also patch libs to try and use riscv64 variants
+          # if they exist, they should work
+          # if they don't, i'll troubleshoot
+          sed -i '/stage-packages:/,/^[^ ]/ s/- \([a-z0-9.-]*\)/- \1:riscv64/' snapcraft.yaml
+          sed -i '/override-build: |/a \      export CC=riscv64-linux-gnu-gcc\n      export CXX=riscv64-linux-gnu-g++' snapcraft.yaml
+          
+          # maybe a patchfile would be better tho
+          cat build-patch.yaml >> snapcraft.yaml
+          
+          # double check the yaml after the heredoc
+          cat snapcraft.yaml
+
+      - name: Setup lxd
+        uses: canonical/setup-lxd@v1
+      
+      - name: Build snap
+        run: |
+          sudo snap install snapcraft --classic --channel=latest/stable
+          sudo snapcraft --use-lxd --build-for=riscv64
+
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
+        with:
+          name: srb2kart-riscv64-snap
+          path: "*.snap"
+
+  armhf-build:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup qemu
+        uses: docker/setup-qemu-action@v4
+
+      - name: Patch manifest
+        run: |
+          cat <<EOF > build-patch.yaml
+          platforms:
+            armhf:
+              build-on: [arm64]
+              build-for: [armhf]
+          EOF
+          # use a heredoc so snapcraft knows we're using arm64
+          # but build for armhf
+          # using the registered qemu
+          # since it whined about not being able to build a snap
+          # with amd64 AND riscv64 support for some reason
+          # in the riscv64 build workflow
+          
+          # now use sed to patch the platforms key
+          # with our cool patch
+          sed -i '/platforms:/,/^[a-z]/ { /platforms:/! { /^[a-z]/!d } }' snapcraft.yaml
+          sed -i '/platforms:/d' snapcraft.yaml
+          
+          # maybe a patchfile would be better tho
+          cat build-patch.yaml >> snapcraft.yaml
+          
+          # double check the yaml after the heredoc
+          cat snapcraft.yaml
+
+          # long sed warning
+          # patch the snapcraft.yaml
+          # again so the linter does not whine about
+          # missing libs because it did that in one build
+          # and i would rather not break armhf potentially
+          sed -i '/dependencies:/,/prime:/ s|prime:|prime:\n      - usr/local/srb2kart/*.so*\n      - usr/games/SRB2Kart/*.so*|' snapcraft.yaml
+
+      - name: Setup lxd
+        uses: canonical/setup-lxd@v1
+      
+      - name: Build snap
+        run: |
+          sudo snap install snapcraft --classic --channel=latest/stable
+          sudo snapcraft --use-lxd --build-for=armhf
+
+      - name: Upload snap
+        uses: actions/upload-artifact@v6
+        with:
+          name: srb2kart-armhf-snap
+          path: "*.snap"
+
   i386-build:
     runs-on: ubuntu-22.04 # for the best compat we have
     steps:
@@ -238,117 +355,6 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: srb2kart-i386-snap
-          path: "*.snap"
-
-  riscv64-build:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup qemu
-        run: |
-          sudo apt-get update
-          # for qemu and binary changes in kernel level
-          # so we can even do riscv64
-          sudo apt-get install -y qemu-user-static binfmt-support
-          sudo update-binfmts --enable qemu-riscv64 # now enable riscv64 super fast
-                                                    # so qemu doesn't take its time
-                                                    # using the binfmt cli from binfmt-support'
-          docker run --rm --privileged multiarch/qemu-user-static --reset -p yes # register qemu
-          # so it takes effect finally now
-
-      - name: Patch manifest
-        run: |
-          cat <<EOF > build-patch.yaml
-          platforms:
-            riscv64:
-              build-on: [amd64]
-              build-for: [riscv64]
-          EOF
-          # use a heredoc so snapcraft knows we're using amd64
-          # but build for riscv64
-          # using the registered qemu
-          # since it whines about not being able to build a snap
-          # with amd64 AND riscv64 support for some reason
-          
-          # now use sed to patch the platforms key
-          # with our cool patch
-          sed -i '/platforms:/,/^[a-z]/ { /platforms:/! { /^[a-z]/!d } }' snapcraft.yaml
-          sed -i '/platforms:/d' snapcraft.yaml
-          
-          # maybe a patchfile would be better tho
-          cat build-patch.yaml >> snapcraft.yaml
-          
-          # double check the yaml after the heredoc
-          cat snapcraft.yaml
-
-      - name: Setup lxd
-        uses: canonical/setup-lxd@v1
-      
-      - name: Build snap
-        run: |
-          sudo snap install snapcraft --classic --channel=latest/stable
-          sudo snapcraft --use-lxd --build-for=riscv64
-
-      - name: Upload snap
-        uses: actions/upload-artifact@v6
-        with:
-          name: srb2kart-riscv64-snap
-          path: "*.snap"
-
-  armhf-build:
-    runs-on: ubuntu-24.04-arm
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Setup qemu
-        uses: docker/setup-qemu-action@v4
-
-      - name: Patch manifest
-        run: |
-          cat <<EOF > build-patch.yaml
-          platforms:
-            armhf:
-              build-on: [arm64]
-              build-for: [armhf]
-          EOF
-          # use a heredoc so snapcraft knows we're using arm64
-          # but build for armhf
-          # using the registered qemu
-          # since it whined about not being able to build a snap
-          # with amd64 AND riscv64 support for some reason
-          # in the riscv64 build workflow
-          
-          # now use sed to patch the platforms key
-          # with our cool patch
-          sed -i '/platforms:/,/^[a-z]/ { /platforms:/! { /^[a-z]/!d } }' snapcraft.yaml
-          sed -i '/platforms:/d' snapcraft.yaml
-          
-          # maybe a patchfile would be better tho
-          cat build-patch.yaml >> snapcraft.yaml
-          
-          # double check the yaml after the heredoc
-          cat snapcraft.yaml
-
-          # long sed warning
-          # patch the snapcraft.yaml
-          # again so the linter does not whine about
-          # missing libs because it did that in one build
-          # and i would rather not break armhf potentially
-          sed -i '/dependencies:/,/prime:/ s|prime:|prime:\n      - usr/local/srb2kart/*.so*\n      - usr/games/SRB2Kart/*.so*|' snapcraft.yaml
-
-      - name: Setup lxd
-        uses: canonical/setup-lxd@v1
-      
-      - name: Build snap
-        run: |
-          sudo snap install snapcraft --classic --channel=latest/stable
-          sudo snapcraft --use-lxd --build-for=armhf
-
-      - name: Upload snap
-        uses: actions/upload-artifact@v6
-        with:
-          name: srb2kart-armhf-snap
           path: "*.snap"
 
   # publish-snap:
