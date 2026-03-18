@@ -111,6 +111,85 @@ jobs:
           # apply
           sudo apt-get update
 
+
+          ### incredibly long and messy heredoc warning!!!!!!!
+          # delete the old bad patched versions
+          # sed doesn't patch it properly
+          sed -i '/kart-app:/,$d' snapcraft.yaml
+          
+          # re-patch with the messiest heredoc known to man now
+          cat << 'EOF' >> snapcraft.yaml
+            kart-app:
+              plugin: cmake
+              source: https://github.com/STJr/Kart-Public.git
+              source-tag: v1.6
+              after: [kartassets, rapidjson, discord-rpc]
+              build-packages:
+                - libsdl2-mixer-dev
+                - libsdl2-dev
+                - libupnp-dev
+                - libgme-dev
+                - libopenmpt-dev
+                - libc6-dev
+                - libpng-dev
+                - libcurl4-openssl-dev
+                - nasm
+                - zlib1g-dev
+                - build-essential
+              override-build: |
+                # find assets
+                asset_base=$(find $SNAPCRAFT_STAGE -name "srb2.srb" -printf '%h' -quit)
+                if [ -n "$asset_base" ]; then
+                    target_dir="../src/assets/installer"
+                    mkdir -p "$target_dir"
+                    cp "$asset_base/srb2.srb" "$target_dir/"
+                    cp "$asset_base"/*.kart "$target_dir/"
+                    cp "$asset_base"/*.dat "$target_dir/"
+                    cp -r "$asset_base/mdls" "$target_dir/"
+                    echo "assets copied to $target_dir"
+                fi
+          
+                # run build, not pull
+                # cuz the sed patches incorrectly patch this to snapcraftctl pull
+                snapcraftctl build
+          
+                # find binary
+                kart=$(find "$SNAPCRAFT_PART_BUILD" -iname "*srb2kart*" -type f -executable -print -quit)
+          
+                if [ -n "$kart" ]; then
+                    echo "found binary at $kart, moving to install destination"
+                    mkdir -p "$SNAPCRAFT_PART_INSTALL/usr/games/SRB2Kart"
+                    cp "$kart" "$SNAPCRAFT_PART_INSTALL/usr/games/SRB2Kart/srb2kart"
+                else
+                    echo "error: srb2kart binary not found in $SNAPCRAFT_PART_BUILD"
+                    ls -R "$SNAPCRAFT_PART_BUILD"
+                    exit 1
+                fi
+          
+            dependencies:
+              after: [rapidjson, discord-rpc, kartassets]
+              plugin: nil
+              stage-packages:
+                - libsdl2-2.0-0
+                - libsdl2-mixer-2.0-0
+                - libsamplerate0
+                - libdecor-0-0
+                - libfluidsynth3
+                - libinstpatch-1.0-2
+                - libjack0
+                - libmodplug1
+                - libopusfile0
+              prime:
+                - usr/lib/$SNAPCRAFT_ARCH_TRIPLET/*
+                - usr/lib/libdiscord-rpc.so*
+          
+            desktop-file:
+              after: [dependencies]
+              plugin: dump
+              source: ./desktop-file
+              prime:
+                - org.srb2.SRB2Kart.desktop
+          EOF
           echo "patched yaml:"
           cat snapcraft.yaml
       # - name: Setup lxd
