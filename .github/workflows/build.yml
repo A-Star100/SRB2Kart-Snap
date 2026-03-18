@@ -74,8 +74,11 @@ jobs:
 
 
           # craftctl doesn't exist on core18...
-          sed -i '/override-pull:/,/craftctl default/ s/craftctl default/snapcraftctl pull/' snapcraft.yaml
-          sed -i '/override-build:/,/craftctl default/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
+          # # # sed -i '/override-pull:/,/after:/ s/craftctl default/snapcraftctl pull/' snapcraft.yaml
+          # # # sed -i '/override-build:/,/find/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
+          sed -i '/override-pull:/,/^[A-Za-z]/ s/craftctl default/snapcraftctl pull/' snapcraft.yaml # convoluted sed warning
+          sed -i '/override-build:/,/^[A-Za-z]/ s/craftctl default/snapcraftctl build/' snapcraft.yaml # also convoluted sed warning
+          sed -i 's/craftctl default/snapcraftctl build/g' snapcraft.yaml # strip any remaining references
 
           # below is a last resort
           # not a good idea
