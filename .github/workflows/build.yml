@@ -192,7 +192,7 @@ jobs:
           EOF
 
           # to patch CVE-2020-27348
-          sed -i 's/:$LD_LIBRARY_PATH/:${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}/g' snapcraft.yaml
+          sed -i 's|LD_LIBRARY_PATH:.*|LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/usr/lib|g' snapcraft.yaml
           echo "patched yaml:"
           cat snapcraft.yaml
       # - name: Setup lxd
