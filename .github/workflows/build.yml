@@ -76,8 +76,9 @@ jobs:
           # also patch libs to try and use riscv64 variants
           # if they exist, they should work
           # if they don't, i'll troubleshoot
-          sed -i '/override-build: |/a \      export CC=riscv64-linux-gnu-gcc\n      export CXX=riscv64-linux-gnu-g++' snapcraft.yaml
-          sed -i 's|cmake-parameters: \[\(.*\)\]|cmake-parameters: [\1, "-DCMAKE_SYSTEM_NAME=Linux", "-DCMAKE_SYSTEM_PROCESSOR=riscv64", "-DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc", "-DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++"]|' snapcraft.yaml
+          # 1. Clean up any existing brackets to make them a standard format
+          sed -i 's/cmake-parameters: \[/cmake-parameters: [/g' snapcraft.yaml
+          sed -i '/cmake-parameters:/ s|\]|, "-DCMAKE_SYSTEM_NAME=Linux", "-DCMAKE_SYSTEM_PROCESSOR=riscv64", "-DCMAKE_C_COMPILER=riscv64-linux-gnu-gcc", "-DCMAKE_CXX_COMPILER=riscv64-linux-gnu-g++"]|' snapcraft.yaml
           sed -i '/override-build: |/a \      export LD=riscv64-linux-gnu-ld' snapcraft.yaml
           
           # maybe a patchfile would be better tho
