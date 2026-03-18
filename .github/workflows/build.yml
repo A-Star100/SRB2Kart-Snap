@@ -77,7 +77,10 @@ jobs:
           sed -i '/override-build:/,/^  [a-z]/ s/craftctl default/snapcraftctl build/' snapcraft.yaml
           # swap ENV beginning parts (may not work properly, but we will see)
           sed -i 's/\$CRAFT_/\$SNAPCRAFT_/g' snapcraft.yaml
-
+          # patch find command for binary
+          # to SNAPCRAFT_PART_BUILD from cwd (.)
+          sed -i 's/kart=$(find . -name "srb2kart"/kart=$(find "$SNAPCRAFT_PART_BUILD" -name "srb2kart"/g' snapcraft.yaml
+          sed -i 's/rpc=$(find . -name "libdiscord-rpc.so"/rpc=$(find "$SNAPCRAFT_PART_BUILD" -name "libdiscord-rpc.so"/g' snapcraft.yaml
           # trust the apt sources
           # not just for the soundfont lib
           # in case this happens with other libs
