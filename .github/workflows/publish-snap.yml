@@ -45,7 +45,7 @@ jobs:
           
           base="final-snaps"
           
-          valid=("srb2kart-amd64-snap" "srb2kart-arm64-snap" "srb2kart-riscv64-snap")
+          valid=("srb2kart-amd64-snap" "srb2kart-arm64-snap")
 
           for artifact in "${valid[@]}"; do
             subdir="$base/$artifact"
