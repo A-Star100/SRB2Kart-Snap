@@ -6,6 +6,10 @@ so I thought it would be a good idea to make an SRB2Kart snap!
 
 [![srb2kart](https://snapcraft.io/srb2kart/badge.svg)](https://snapcraft.io/srb2kart)
 
+[!WARNING]
+> Do NOT download older builds, they contain security vulnerabilities.
+> I received a formal email about this, so uhh yeah just download the newer versions from Jun 18 2026 :)
+
 ## What happened to the other arches?
 `i386`, `armhf`, and `riscv64` were all originally supported, but it turns out everything was just a big fakeout.
 When building in QEMU, the gcc from the host would be called, which would be for the wrong arch.
